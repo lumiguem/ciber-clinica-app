@@ -67,7 +67,6 @@
           <table class="w-full text-sm text-left text-gray-700">
             <thead class="bg-gradient-to-r from-blue-600 to-blue-500 text-white uppercase text-xs tracking-wider">
             <tr>
-              <th class="px-6 py-3">Numeral</th>
               <th class="px-6 py-3">Fecha</th>
               <th class="px-6 py-3">Hora</th>
               <th class="px-6 py-3">Paciente</th>
@@ -79,7 +78,6 @@
             </thead>
             <tbody class="divide-y divide-gray-200">
             <tr *ngFor="let cita of citas" class="hover:bg-gray-50 transition">
-              <td class="px-6 py-4 font-medium text-gray-900">{{ cita.id }}</td>
               <td class="px-6 py-4 font-medium text-gray-900">{{ cita.fecha }}</td>
               <td class="px-6 py-4">{{ cita.hora.substring(0,5) }}</td>
               <td class="px-6 py-4">{{ cita.pacienteNombreCompleto }}</td>
