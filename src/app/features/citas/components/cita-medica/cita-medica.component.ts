@@ -22,12 +22,11 @@ export class CitaMedicaComponent implements OnInit {
   currentPage = 0;
   size = 6;
   loading = false;
+
   successMessage: string | null = null;
+  editMessage: string | null = null;
 
-  editingCita: Cita | null = null; // cita que se está editando
-  editMessage: string | null = null; // mensaje de éxito al editar
-
-
+  editingCita: any | null = null; // cita que se está editando
 
   cita = {
     pacienteId: null,
@@ -52,19 +51,18 @@ export class CitaMedicaComponent implements OnInit {
     this.cargarMedicos();
   }
 
-  // 🔹 Obtener todos los pacientes
   cargarPacientes() {
     this.pacienteService.getPacientes(0, 1000).subscribe(resp => {
-      // si tu backend devuelve { content: [...], totalPages, number }
       this.pacientes = resp.content ?? [];
+      console.log('Pacientes cargados:', this.pacientes); // Debug
       this.cdr.detectChanges();
     });
   }
 
-  // 🔹 Obtener todos los médicos
   cargarMedicos() {
     this.medicoService.getMedicos(0, 1000).subscribe(resp => {
       this.medicos = resp.content ?? [];
+      console.log('Médicos cargados:', this.medicos); // Debug
       this.cdr.detectChanges();
     });
   }
@@ -74,6 +72,7 @@ export class CitaMedicaComponent implements OnInit {
     this.citaService.getCitas(page, this.size).subscribe({
       next: (res) => {
         this.citas = res.content;
+        console.log('Citas cargadas:', this.citas); // Debug
         this.totalPages = res.totalPages;
         this.currentPage = res.number;
         this.loading = false;
@@ -87,40 +86,45 @@ export class CitaMedicaComponent implements OnInit {
     });
   }
 
-  prevPage(): void { if (this.currentPage > 0) this.loadCitas(this.currentPage - 1); }
-  nextPage(): void { if (this.currentPage < this.totalPages - 1) this.loadCitas(this.currentPage + 1); }
-  toggleView(): void { this.viewMode = this.viewMode === 'table' ? 'cards' : 'table'; }
-
-  abrirFormularioCita() {
-    // reset del formulario
-    this.cita = { pacienteId: null, medicoId: null, fecha: '', hora: '', motivo: '' };
-    this.mostrarFormulario = true;
+  prevPage(): void {
+    if (this.currentPage > 0) this.loadCitas(this.currentPage - 1);
   }
 
-  cerrarFormularioCita() { this.mostrarFormulario = false; }
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1) this.loadCitas(this.currentPage + 1);
+  }
+
+  toggleView(): void {
+    this.viewMode = this.viewMode === 'table' ? 'cards' : 'table';
+  }
+
+  // ========== NUEVA CITA ==========
+  abrirFormularioCita() {
+    this.cita = { pacienteId: null, medicoId: null, fecha: '', hora: '', motivo: '' };
+    this.mostrarFormulario = true;
+    this.editingCita = null; // Cerrar edición si está abierta
+  }
+
+  cerrarFormularioCita() {
+    this.mostrarFormulario = false;
+  }
 
   guardarCita() {
-    // Construir JSON que espera el backend
     const nuevaCita = {
       fecha: this.cita.fecha,
-      hora: this.cita.hora + ':00', // si tu backend espera formato HH:mm:ss
+      hora: this.cita.hora + ':00',
       motivo: this.cita.motivo,
       estado: 'PENDIENTE',
       paciente: { id: this.cita.pacienteId },
       medico: { id: this.cita.medicoId }
     };
 
-    console.log('JSON a enviar:', nuevaCita); // 🔹 Ver en consola
-
     this.citaService.crearCita(nuevaCita).subscribe({
       next: () => {
         this.successMessage = '¡Cita registrada con éxito! 🎉';
-
-        // Ocultar mensaje después de 4 segundos
         setTimeout(() => this.successMessage = null, 4000);
-
         this.cerrarFormularioCita();
-        this.loadCitas(this.currentPage); // recargar tabla
+        this.loadCitas(this.currentPage);
       },
       error: (err) => {
         console.error('Error al crear cita:', err);
@@ -128,40 +132,51 @@ export class CitaMedicaComponent implements OnInit {
     });
   }
 
-  abrirEdicion(cita: Cita) {
-    this.editingCita = { ...cita }; // clonar datos para editar
+  // ========== EDITAR CITA ==========
+  abrirEdicion(cita: any) {
+    console.log('Cita a editar:', cita); // Debug
+
+    const horaFormateada = cita.hora ? cita.hora.substring(0, 5) : '';
+    const pacienteId = cita.idPaciente;
+    const medicoId = cita.idMedico;
+
+    this.editingCita = {
+      ...cita,
+      idPaciente: pacienteId,
+      idMedico: medicoId,
+      hora: horaFormateada
+    };
+
+    this.mostrarFormulario = false; // Cerrar formulario nuevo si está abierto
   }
 
   guardarEdicion() {
     if (!this.editingCita) return;
 
     const citaActualizada = {
-      fecha: this.editingCita.fecha,       // formato: YYYY-MM-DD
-      hora: this.editingCita.hora + ':00', // formato: HH:mm:ss
-      paciente: { id: this.editingCita.idPaciente },
-      medico: { id: this.editingCita.idMedico },
+      fecha: this.editingCita.fecha,
+      hora: this.editingCita.hora + ':00',
       motivo: this.editingCita.motivo,
-      estado: this.editingCita.estado
+      estado: this.editingCita.estado,
+      paciente: { id: this.editingCita.idPaciente },
+      medico: { id: this.editingCita.idMedico }
     };
-
-    console.log('JSON enviado para actualizar:', citaActualizada);
 
     this.citaService.actualizarCita(this.editingCita.id, citaActualizada).subscribe({
       next: () => {
         this.editMessage = '✅ Cita actualizada con éxito';
         setTimeout(() => this.editMessage = null, 4000);
         this.editingCita = null;
-        this.loadCitas(this.currentPage); // recargar tabla
+        this.loadCitas(this.currentPage);
       },
       error: (err) => {
         console.error('❌ Error al actualizar cita:', err);
+
       }
     });
   }
 
-
   cancelarEdicion() {
     this.editingCita = null;
   }
-
 }

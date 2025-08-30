@@ -15,45 +15,95 @@
         + Nueva Cita
       </button>
     </div>
+  </div>
 
+  <!-- Modal/Formulario NUEVA CITA -->
+  <div *ngIf="mostrarFormulario" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
+    <div class="bg-white p-6 rounded-lg shadow-xl w-96 max-h-screen overflow-y-auto">
+      <h3 class="text-lg font-bold mb-4">Nueva Cita Médica</h3>
+      <form (ngSubmit)="guardarCita()">
+        <label class="block mb-2 font-medium">Paciente:</label>
+        <select [(ngModel)]="cita.pacienteId" name="pacienteId" required class="w-full mb-3 border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-500">
+          <option value="">Seleccionar paciente...</option>
+          <option *ngFor="let paciente of pacientes" [value]="paciente.id">{{ paciente.nombres }} {{ paciente.apellidos }}</option>
+        </select>
 
+        <label class="block mb-2 font-medium">Médico:</label>
+        <select [(ngModel)]="cita.medicoId" name="medicoId" required class="w-full mb-3 border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-500">
+          <option value="">Seleccionar médico...</option>
+          <option *ngFor="let medico of medicos" [value]="medico.id">{{ medico.nombres }} {{ medico.apellidos }}</option>
+        </select>
 
-    <!-- Modal/Formulario -->
-    <div *ngIf="mostrarFormulario" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
-      <div class="bg-white p-6 rounded shadow-lg w-96">
-        <h3 class="text-lg font-bold mb-4">Nueva Cita Médica</h3>
-        <form (ngSubmit)="guardarCita()">
-          <label class="block mb-2">Paciente:</label>
-          <select [(ngModel)]="cita.pacienteId" name="pacienteId" required class="w-full mb-3 border px-2 py-1 rounded">
-            <option *ngFor="let paciente of pacientes" [value]="paciente.id">{{ paciente.nombres }} {{ paciente.apellidos }}</option>
-          </select>
+        <label class="block mb-2 font-medium">Fecha:</label>
+        <input type="date" [(ngModel)]="cita.fecha" name="fecha" required class="w-full mb-3 border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"/>
 
-          <label class="block mb-2">Médico:</label>
-          <select [(ngModel)]="cita.medicoId" name="medicoId" required class="w-full mb-3 border px-2 py-1 rounded">
-            <option *ngFor="let medico of medicos" [value]="medico.id">{{ medico.nombres }} {{ medico.apellidos }}</option>
-          </select>
+        <label class="block mb-2 font-medium">Hora:</label>
+        <input type="time" [(ngModel)]="cita.hora" name="hora" required class="w-full mb-3 border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"/>
 
-          <label class="block mb-2">Fecha:</label>
-          <input type="date" [(ngModel)]="cita.fecha" name="fecha" required class="w-full mb-3 border px-2 py-1 rounded"/>
+        <label class="block mb-2 font-medium">Motivo:</label>
+        <input type="text" [(ngModel)]="cita.motivo" name="motivo" required class="w-full mb-3 border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"/>
 
-          <label class="block mb-2">Hora:</label>
-          <input type="time" [(ngModel)]="cita.hora" name="hora" required class="w-full mb-3 border px-2 py-1 rounded"/>
+        <div class="flex justify-end mt-6 gap-3">
+          <button type="button" class="px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white rounded-lg transition" (click)="cerrarFormularioCita()">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-          <label class="block mb-2">Motivo:</label>
-          <input type="text" [(ngModel)]="cita.motivo" name="motivo" required class="w-full mb-3 border px-2 py-1 rounded"/>
+  <!-- Modal/Formulario EDITAR CITA -->
+  <div *ngIf="editingCita" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
+    <div class="bg-white p-6 rounded-lg shadow-xl w-96 max-h-screen overflow-y-auto">
+      <h3 class="text-lg font-bold mb-4">✏️ Editar Cita Médica</h3>
+      <form (ngSubmit)="guardarEdicion()">
+        <label class="block mb-2 font-medium">Paciente:</label>
+        <select [(ngModel)]="editingCita.idPaciente" name="idPaciente" required class="w-full mb-3 border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-500">
+          <option value="">Seleccionar paciente...</option>
+          <option *ngFor="let paciente of pacientes" [value]="paciente.id">{{ paciente.nombres }} {{ paciente.apellidos }}</option>
+        </select>
 
-          <div class="flex justify-end mt-4">
-            <button type="button" class="mr-2 px-4 py-2 bg-gray-400 rounded" (click)="cerrarFormularioCita()">Cancelar</button>
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Guardar</button>
-          </div>
-        </form>
-      </div>
+        <label class="block mb-2 font-medium">Médico:</label>
+        <select [(ngModel)]="editingCita.idMedico" name="idMedico" required class="w-full mb-3 border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-500">
+          <option value="">Seleccionar médico...</option>
+          <option *ngFor="let medico of medicos" [value]="medico.id">{{ medico.nombres }} {{ medico.apellidos }}</option>
+        </select>
+
+        <label class="block mb-2 font-medium">Fecha:</label>
+        <input type="date" [(ngModel)]="editingCita.fecha" name="fecha" required class="w-full mb-3 border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"/>
+
+        <label class="block mb-2 font-medium">Hora:</label>
+        <input type="time" [(ngModel)]="editingCita.hora" name="hora" required class="w-full mb-3 border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"/>
+
+        <label class="block mb-2 font-medium">Motivo:</label>
+        <input type="text" [(ngModel)]="editingCita.motivo" name="motivo" required class="w-full mb-3 border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"/>
+
+        <label class="block mb-2 font-medium">Estado:</label>
+        <select [(ngModel)]="editingCita.estado" name="estado" required class="w-full mb-3 border border-gray-300 px-3 py-2 rounded-lg focus:ring-2 focus:ring-blue-500">
+          <option value="PENDIENTE">PENDIENTE</option>
+          <option value="CONFIRMADA">CONFIRMADA</option>
+          <option value="CANCELADA">CANCELADA</option>
+        </select>
+
+        <div class="flex justify-end mt-6 gap-3">
+          <button type="button" class="px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white rounded-lg transition" (click)="cancelarEdicion()">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition">Actualizar</button>
+        </div>
+      </form>
     </div>
   </div>
 
   <!-- Estado cargando -->
   <div *ngIf="loading" class="text-center text-gray-500 py-10">
     ⏳ Cargando citas...
+  </div>
+
+  <!-- Mensajes de éxito -->
+  <div *ngIf="successMessage" class="mb-4 p-4 bg-green-100 border border-green-300 text-green-700 rounded-lg shadow-sm">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="editMessage" class="mb-4 p-4 bg-blue-100 border border-blue-300 text-blue-700 rounded-lg shadow-sm">
+    {{ editMessage }}
   </div>
 
   <!-- Contenido -->
@@ -67,7 +117,6 @@
           <table class="w-full text-sm text-left text-gray-700">
             <thead class="bg-gradient-to-r from-blue-600 to-blue-500 text-white uppercase text-xs tracking-wider">
             <tr>
-              <th class="px-6 py-3">Numeral</th>
               <th class="px-6 py-3">Fecha</th>
               <th class="px-6 py-3">Hora</th>
               <th class="px-6 py-3">Paciente</th>
@@ -75,11 +124,11 @@
               <th class="px-6 py-3">Médico</th>
               <th class="px-6 py-3">Motivo</th>
               <th class="px-6 py-3">Estado</th>
+              <th class="px-6 py-3">Acciones</th>
             </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
             <tr *ngFor="let cita of citas" class="hover:bg-gray-50 transition">
-              <td class="px-6 py-4 font-medium text-gray-900">{{ cita.id }}</td>
               <td class="px-6 py-4 font-medium text-gray-900">{{ cita.fecha }}</td>
               <td class="px-6 py-4">{{ cita.hora.substring(0,5) }}</td>
               <td class="px-6 py-4">{{ cita.pacienteNombreCompleto }}</td>
@@ -94,6 +143,12 @@
                 }">
                   {{ cita.estado }}
                 </span>
+              </td>
+              <td class="px-6 py-4">
+                <button (click)="abrirEdicion(cita)"
+                        class="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs rounded-lg transition">
+                  ✏️ Editar
+                </button>
               </td>
             </tr>
             </tbody>
@@ -120,12 +175,17 @@
           <p class="text-sm text-gray-600"><b>Especialidad:</b> {{ cita.especialidad }}</p>
           <p class="text-sm text-gray-600"><b>Médico:</b> {{ cita.medicoNombreCompleto }}</p>
           <p class="text-sm text-gray-600"><b>Motivo:</b> {{ cita.motivo }}</p>
+
+          <!-- Botón de editar en cards -->
+          <div class="mt-4 flex justify-end">
+            <button (click)="abrirEdicion(cita)"
+                    class="px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-sm rounded-lg transition">
+              ✏️ Editar
+            </button>
+          </div>
         </div>
       </div>
-      <!-- Mensaje de éxito -->
-      <div *ngIf="successMessage" class="mb-4 p-4 bg-green-100 border border-green-300 text-green-700 rounded-lg shadow-sm">
-        {{ successMessage }}
-      </div>
+
       <!-- Paginación -->
       <div class="flex justify-between items-center p-4 mt-6 bg-gray-50 border rounded-xl">
         <button (click)="prevPage()" [disabled]="currentPage === 0"
@@ -143,15 +203,13 @@
         </button>
       </div>
     </div>
-
-
   </ng-template>
 
   <!-- Cuando no hay citas -->
   <ng-template #emptyTpl>
     <div class="text-center text-gray-500 mt-10 bg-gray-100 py-10 rounded-xl shadow-inner">
       <p class="text-lg font-medium">No hay citas registradas 🗒</p>
-      <p class="text-sm">Puedes agregar una nueva cita desde el botón <b>“+ Nueva Cita”</b>.</p>
+      <p class="text-sm">Puedes agregar una nueva cita desde el botón <b>"+ Nueva Cita"</b>.</p>
     </div>
   </ng-template>
 </div>
