@@ -24,7 +24,6 @@
         <h3 class="text-lg font-bold mb-4">Nueva Cita Médica</h3>
         <form (ngSubmit)="guardarCita()">
           <label class="block mb-2">Paciente:</label>
-          <label class="block mb-2">Paciente:</label>
           <select [(ngModel)]="cita.pacienteId" name="pacienteId" required class="w-full mb-3 border px-2 py-1 rounded">
             <option *ngFor="let paciente of pacientes" [value]="paciente.id">{{ paciente.nombres }} {{ paciente.apellidos }}</option>
           </select>
