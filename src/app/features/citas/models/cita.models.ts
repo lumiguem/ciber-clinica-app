@@ -2,7 +2,10 @@ export interface Cita {
   id: number;
   fecha: string; // YYYY-MM-DD
   hora: string; // HH:mm:ss
+  idPaciente: number;
+  idMedico: number;
   pacienteNombreCompleto: string;
+  especialidad: string;
   medicoNombreCompleto: string;
   motivo: string;
   estado: 'PENDIENTE' | 'CONFIRMADA' | 'CANCELADA';

@@ -12,7 +12,7 @@ export class PacienteService {
   private readonly baseUrl= environment.apiUrl;
 
   // 📌 Listar pacientes con paginación
-  getPacientes(page: number = 0, size: number = 5): Observable<any> {
+  getPacientes(page: number = 0, size: number = 1000): Observable<any> {
     return this._httpClient.get<any>(`${this.baseUrl}/api/pacientes?page=${page}&size=${size}`)
   .pipe(map(resp => resp.data));
   }

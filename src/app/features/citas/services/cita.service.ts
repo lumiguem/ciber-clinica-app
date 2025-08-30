@@ -16,4 +16,13 @@ export class CitaService {
     return this._httpClient.get<{ data: CitaResponse }>(`${this.baseUrl}/api/citas?page=${page}&size=${size}`)
       .pipe(map(resp => resp.data)); // saco "data"
   }
+
+  //Crear nueva cita
+  crearCita(cita: any): Observable<any> {
+    return this._httpClient.post<any>(`${this.baseUrl}/api/citas`, cita);
+  }
+  //Actualizar  cita
+  actualizarCita(id: number, cita: any) {
+    return this._httpClient.put<any>(`${this.baseUrl}/api/citas/${id}`, cita);
+  }
 }

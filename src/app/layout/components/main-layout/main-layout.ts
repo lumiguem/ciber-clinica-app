@@ -43,6 +43,16 @@ export class MainLayoutComponent {
       path: '/pacientes',
       icon: 'M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z'
     },
+    {
+      label: 'Especialidades',
+      path: '/especialidades',
+      icon: 'M4 22h16V8h-3V4H7v4H4v14Zm5-10h6v6h-6v-6Zm-2 10v-8h10v8H7Zm2-12h6V6H9v4Z'
+    },
+    {
+      label: 'Medicos',
+      path: '/medicos',
+      icon: 'M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm-7 9v-1c0-2.76 3.58-5 8-5s8 2.24 8 5v1H5Zm13-11h-2V8a1 1 0 1 0-2 0v2h-2a1 1 0 1 0 0 2h2v2a1 1 0 1 0 2 0v-2h2a1 1 0 1 0 0-2Z'
+    },
   ]);
 
   userMenuItems: UserMenuItem[] = [
