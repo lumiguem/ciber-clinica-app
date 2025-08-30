@@ -1,113 +1,141 @@
-<div class="container mx-auto px-6 py-8">
-  <!-- Encabezado -->
-  <div class="flex items-center justify-between mb-6">
-    <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">
-      📅 Citas Médicas
-    </h2>
-
-    <!-- Botón para alternar vista -->
-    <div class="flex gap-3">
-      <button (click)="toggleView()"
-              class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl shadow-md transition">
-        Cambiar a {{ viewMode === 'table' ? 'Cards' : 'Tabla' }}
-      </button>
-      <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl shadow-md transition">
-        + Nueva Cita
-      </button>
-    </div>
+<div class="p-6">
+  <!-- Mensajes de éxito -->
+  <div *ngIf="successMessage" class="mb-4 p-3 bg-green-100 text-green-800 rounded">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="editMessage" class="mb-4 p-3 bg-blue-100 text-blue-800 rounded">
+    {{ editMessage }}
   </div>
 
-  <!-- Estado cargando -->
-  <div *ngIf="loading" class="text-center text-gray-500 py-10">
-    ⏳ Cargando citas...
-  </div>
+  <!-- Botón para nueva cita -->
+  <button
+    class="mb-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+    (click)="abrirFormularioCita()">
+    + Nueva Cita
+  </button>
 
-  <!-- Contenido -->
-  <ng-template [ngIf]="!loading">
-    <div *ngIf="citas.length > 0; else emptyTpl">
+  <!-- Formulario Nueva Cita -->
+  <div *ngIf="mostrarFormulario" class="mb-6 p-4 bg-white rounded shadow">
+    <h2 class="text-lg font-bold mb-4">Registrar Nueva Cita</h2>
 
-      <!-- Vista TABLA -->
-      <div *ngIf="viewMode === 'table'"
-           class="bg-white/70 backdrop-blur-lg rounded-2xl shadow-lg overflow-hidden border border-gray-100">
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm text-left text-gray-700">
-            <thead class="bg-gradient-to-r from-blue-600 to-blue-500 text-white uppercase text-xs tracking-wider">
-            <tr>
-              <th class="px-6 py-3">Fecha</th>
-              <th class="px-6 py-3">Hora</th>
-              <th class="px-6 py-3">Paciente</th>
-              <th class="px-6 py-3">Médico</th>
-              <th class="px-6 py-3">Motivo</th>
-              <th class="px-6 py-3">Estado</th>
-            </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-            <tr *ngFor="let cita of citas" class="hover:bg-gray-50 transition">
-              <td class="px-6 py-4 font-medium text-gray-900">{{ cita.fecha }}</td>
-              <td class="px-6 py-4">{{ cita.hora }}</td>
-              <td class="px-6 py-4">{{ cita.pacienteNombreCompleto }}</td>
-              <td class="px-6 py-4">{{ cita.medicoNombreCompleto }}</td>
-              <td class="px-6 py-4">{{ cita.motivo }}</td>
-              <td class="px-6 py-4">
-                <span [ngClass]="{
-                  'bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold': cita.estado === 'PENDIENTE',
-                  'bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold': cita.estado === 'CONFIRMADA',
-                  'bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold': cita.estado === 'CANCELADA'
-                }">
-                  {{ cita.estado }}
-                </span>
-              </td>
-            </tr>
-            </tbody>
-          </table>
+    <form (ngSubmit)="guardarCita()">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block mb-1">Paciente</label>
+          <select [(ngModel)]="cita.pacienteId" name="pacienteId" class="w-full border rounded p-2">
+            <option [ngValue]="null">Seleccione...</option>
+            <option *ngFor="let p of pacientes" [ngValue]="p.id">{{ p.nombreCompleto }}</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block mb-1">Médico</label>
+          <select [(ngModel)]="cita.medicoId" name="medicoId" class="w-full border rounded p-2">
+            <option [ngValue]="null">Seleccione...</option>
+            <option *ngFor="let m of medicos" [ngValue]="m.id">{{ m.nombreCompleto }} - {{ m.especialidad }}</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block mb-1">Fecha</label>
+          <input type="date" [(ngModel)]="cita.fecha" name="fecha" class="w-full border rounded p-2"/>
+        </div>
+
+        <div>
+          <label class="block mb-1">Hora</label>
+          <input type="time" [(ngModel)]="cita.hora" name="hora" class="w-full border rounded p-2"/>
+        </div>
+
+        <div class="col-span-2">
+          <label class="block mb-1">Motivo</label>
+          <textarea [(ngModel)]="cita.motivo" name="motivo" class="w-full border rounded p-2"></textarea>
         </div>
       </div>
 
-      <!-- Vista CARDS -->
-      <div *ngIf="viewMode === 'cards'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div *ngFor="let cita of citas"
-             class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-gray-800">{{ cita.pacienteNombreCompleto }}</h3>
-            <span [ngClass]="{
-              'bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold': cita.estado === 'PENDIENTE',
-              'bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold': cita.estado === 'CONFIRMADA',
-              'bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold': cita.estado === 'CANCELADA'
-            }">
-              {{ cita.estado }}
-            </span>
-          </div>
-          <p class="text-sm text-gray-600"><b>Fecha:</b> {{ cita.fecha }}</p>
-          <p class="text-sm text-gray-600"><b>Hora:</b> {{ cita.hora }}</p>
-          <p class="text-sm text-gray-600"><b>Médico:</b> {{ cita.medicoNombreCompleto }}</p>
-          <p class="text-sm text-gray-600"><b>Motivo:</b> {{ cita.motivo }}</p>
+      <div class="mt-4 flex gap-2">
+        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Guardar</button>
+        <button type="button" (click)="cerrarFormularioCita()" class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancelar</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Formulario Editar Cita -->
+  <div *ngIf="editingCita" class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded shadow">
+    <h2 class="text-lg font-bold mb-4">Editar Cita</h2>
+
+    <form (ngSubmit)="guardarEdicion()">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block mb-1">Paciente</label>
+          <select [(ngModel)]="editingCita.idPaciente" name="editPacienteId" class="w-full border rounded p-2">
+            <option *ngFor="let p of pacientes" [ngValue]="p.id">{{ p.nombreCompleto }}</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block mb-1">Médico</label>
+          <select [(ngModel)]="editingCita.idMedico" name="editMedicoId" class="w-full border rounded p-2">
+            <option *ngFor="let m of medicos" [ngValue]="m.id">{{ m.nombreCompleto }} - {{ m.especialidad }}</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block mb-1">Fecha</label>
+          <input type="date" [(ngModel)]="editingCita.fecha" name="editFecha" class="w-full border rounded p-2"/>
+        </div>
+
+        <div>
+          <label class="block mb-1">Hora</label>
+          <input type="time" [(ngModel)]="editingCita.hora" name="editHora" class="w-full border rounded p-2"/>
+        </div>
+
+        <div class="col-span-2">
+          <label class="block mb-1">Motivo</label>
+          <textarea [(ngModel)]="editingCita.motivo" name="editMotivo" class="w-full border rounded p-2"></textarea>
         </div>
       </div>
 
-      <!-- Paginación -->
-      <div class="flex justify-between items-center p-4 mt-6 bg-gray-50 border rounded-xl">
-        <button (click)="prevPage()" [disabled]="currentPage === 0"
-                class="flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-xl text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed">
-          ⬅ Anterior
-        </button>
-
-        <span class="text-gray-600 font-medium">
-          Página {{ currentPage + 1 }} de {{ totalPages }}
-        </span>
-
-        <button (click)="nextPage()" [disabled]="currentPage >= totalPages - 1"
-                class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed">
-          Siguiente ➡
-        </button>
+      <div class="mt-4 flex gap-2">
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Actualizar</button>
+        <button type="button" (click)="cancelarEdicion()" class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">Cancelar</button>
       </div>
-    </div>
-  </ng-template>
+    </form>
+  </div>
 
-  <!-- Cuando no hay citas -->
-  <ng-template #emptyTpl>
-    <div class="text-center text-gray-500 mt-10 bg-gray-100 py-10 rounded-xl shadow-inner">
-      <p class="text-lg font-medium">No hay citas registradas 🗒️</p>
-      <p class="text-sm">Puedes agregar una nueva cita desde el botón <b>“+ Nueva Cita”</b>.</p>
-    </div>
-  </ng-template>
+  <!-- Tabla de citas -->
+  <div *ngIf="!loading" class="overflow-x-auto">
+    <table class="w-full border-collapse bg-white shadow rounded">
+      <thead>
+      <tr class="bg-gray-100 text-left">
+        <th class="p-2 border">Fecha</th>
+        <th class="p-2 border">Hora</th>
+        <th class="p-2 border">Paciente</th>
+        <th class="p-2 border">Médico</th>
+        <th class="p-2 border">Motivo</th>
+        <th class="p-2 border">Estado</th>
+        <th class="p-2 border">Acciones</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let cita of citas" class="hover:bg-gray-50">
+        <td class="p-2 border">{{ cita.fecha }}</td>
+        <td class="p-2 border">{{ cita.hora.substring(0,5) }}</td>
+        <td class="p-2 border">{{ cita.pacienteNombreCompleto }}</td>
+        <td class="p-2 border">{{ cita.medicoNombreCompleto }}</td>
+        <td class="p-2 border">{{ cita.motivo }}</td>
+        <td class="p-2 border">{{ cita.estado }}</td>
+        <td class="p-2 border">
+          <button (click)="abrirEdicion(cita)" class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Editar</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Paginación -->
+  <div class="mt-4 flex justify-between items-center">
+    <button (click)="prevPage()" [disabled]="currentPage === 0" class="px-3 py-1 bg-gray-300 rounded disabled:opacity-50">Anterior</button>
+    <span>Página {{ currentPage + 1 }} de {{ totalPages }}</span>
+    <button (click)="nextPage()" [disabled]="currentPage >= totalPages - 1" class="px-3 py-1 bg-gray-300 rounded disabled:opacity-50">Siguiente</button>
+  </div>
 </div>
