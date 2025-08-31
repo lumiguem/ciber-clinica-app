@@ -25,4 +25,9 @@ export class CitaService {
   actualizarCita(id: number, cita: any) {
     return this._httpClient.put<any>(`${this.baseUrl}/api/citas/${id}`, cita);
   }
+
+  //Eliminar cita
+  eliminarCita(id: number): Observable<any> {
+    return this._httpClient.delete<any>(`${this.baseUrl}/api/citas/${id}`);
+  }
 }
