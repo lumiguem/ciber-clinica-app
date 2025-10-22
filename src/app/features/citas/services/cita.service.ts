@@ -11,12 +11,14 @@ export class CitaService {
   readonly _httpClient =  inject(HttpClient);
   private readonly baseUrl= environment.apiUrl;
 
-
-  getCitas(page: number = 0, size: number = 5): Observable<CitaResponse> {
-    return this._httpClient.get<{ data: CitaResponse }>(`${this.baseUrl}/api/citas?page=${page}&size=${size}`)
-      .pipe(map(resp => resp.data)); // saco "data"
+  getCitas(page: number=0, size: number=1000): Observable<any> {
+    return this._httpClient.get<{ data: any }>(`${this.baseUrl}/api/citas?page=${page}&size=${size}`)
+      .pipe(
+        map(res => res)
+      );
   }
 
+  
   //Crear nueva cita
   crearCita(cita: any): Observable<any> {
     return this._httpClient.post<any>(`${this.baseUrl}/api/citas`, cita);

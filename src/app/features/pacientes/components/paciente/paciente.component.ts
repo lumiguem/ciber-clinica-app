@@ -2,6 +2,8 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Paciente } from '../../models/paciente.models';
 import { PacienteService } from '../../services/paciente.service';
+import { finalize } from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-paciente',
@@ -28,22 +30,22 @@ export class PacienteComponent implements OnInit {
 
   loadPacientes(page: number = 0): void {
     this.loading = true;
-    this.pacienteService.getPacientes(page, this.size).subscribe({
-      next: (res) => {
-        this.pacientes = res.content;
-        this.totalPages = res.totalPages ?? 0;
-        this.currentPage = res.number ?? 0;
+    this.pacienteService.getPacientes(page, this.size)
+      .pipe(finalize(() => {
         this.loading = false;
-
-        this.cdr.detectChanges(); // 👈 Para forzar render si usas zoneless
-      },
-      error: (err) => {
-        console.error('Error cargando pacientes', err);
-        this.loading = false;
-      }
-    });
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: (res) => {
+          this.pacientes = res?.content ?? [];
+          this.totalPages = res?.totalPages ?? 0;
+          this.currentPage = res?.number ?? 0;
+        },
+        error: (err) => {
+          console.error('Error cargando pacientes', err);
+        }
+      });
   }
-
   prevPage(): void {
     if (this.currentPage > 0) {
       this.loadPacientes(this.currentPage - 1);

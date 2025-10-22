@@ -14,9 +14,12 @@ export class EspecialidadService {
   constructor(private http: HttpClient) {}
 
   // Listar especialidades paginadas
-  getEspecialidades(page: number = 0, size: number = 6): Observable<any> {
+
+  
+
+  getEspecialidades(page: number = 0, size: number = 1000): Observable<any> {
     return this._httpClient.get<any>(`${this.baseUrl}/api/especialidades?page=${page}&size=${size}`)
-      .pipe(map(resp => resp.data));
+  .pipe(map(resp => resp));
   }
 
   // TODO: implementar el resto del CRUD
