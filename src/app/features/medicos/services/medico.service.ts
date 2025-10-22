@@ -15,7 +15,7 @@ export class MedicoService {
   getMedicos(page: number=0, size: number=1000): Observable<any> {
     return this._httpClient.get<{ data: any }>(`${this.baseUrl}/api/medicos?page=${page}&size=${size}`)
       .pipe(
-        map(res => res.data)
+        map(res => res)
       );
   }
 }

@@ -14,7 +14,7 @@ export class PacienteService {
   // 📌 Listar pacientes con paginación
   getPacientes(page: number = 0, size: number = 1000): Observable<any> {
     return this._httpClient.get<any>(`${this.baseUrl}/api/pacientes?page=${page}&size=${size}`)
-  .pipe(map(resp => resp.data));
+  .pipe(map(resp => resp));
   }
 
   // 📌 Obtener paciente por ID

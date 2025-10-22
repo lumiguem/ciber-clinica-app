@@ -56,8 +56,8 @@ export class AuthService {
     return this._httpClient.post(`${this.baseUrl}/public/api/auth/login`, credentials).pipe(
       switchMap((response: any) => {
         // Store the access token and refresh token in local storage
-        this.accessToken = response.data.accessToken;
-        this.refreshToken = response.data.refreshToken;
+        this.accessToken = response.accessToken;
+        this.refreshToken = response.refreshToken;
 
         // Set the authenticated flag to true
         this._authenticated = true;
@@ -66,7 +66,7 @@ export class AuthService {
         this.startTokenRefreshTimer();
 
         // Return a new observable with the response
-        return of(response.data);
+        return of(response.accessToken);
       }),
     );
   }
@@ -85,10 +85,10 @@ export class AuthService {
       .pipe(
         switchMap((response: any) => {
           // Update the access token and return the response
-          this.accessToken = response.data.accessToken;
-          this.refreshToken = response.data.refreshToken;
+          this.accessToken = response.accessToken;
+          this.refreshToken = response.refreshToken;
           this.startTokenRefreshTimer();
-          return of(response.data);
+          return of(response.accessToken);
         })
       );
   }

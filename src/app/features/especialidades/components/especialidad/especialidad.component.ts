@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Especialidad } from '../../models/especialidad.model';
 import { EspecialidadService } from '../../services/especialidad.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-especialidad',
@@ -26,22 +27,24 @@ export class EspecialidadComponent implements OnInit {
   }
 
   loadEspecialidades(page: number = 0): void {
-    this.loading = true;
-    this.especialidadService.getEspecialidades(page, this.size).subscribe({
-      next: (res) => {
-        this.especialidades = res.content;
-        this.totalPages = res.totalPages ?? 0;
-        this.currentPage = res.number ?? 0;
-        this.loading = false;
+      this.loading = true;
+      this.especialidadService.getEspecialidades(page, this.size)
+        .pipe(finalize(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        }))
+        .subscribe({
+          next: (res) => {
+            this.especialidades = res?.content ?? [];
+            this.totalPages = res?.totalPages ?? 0;
+            this.currentPage = res?.number ?? 0;
+          },
+          error: (err) => {
+            console.error('Error cargando especialidades', err);
+          }
+        });
+    }
 
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error cargando especialidades', err);
-        this.loading = false;
-      }
-    });
-  }
 
   prevPage(): void {
     if (this.currentPage > 0) {
